@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIL SEO BOT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Staatliches&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            font-family: 'Roboto', sans-serif;
+            color: white;
+        }
+        .header-bg {
+            background: linear-gradient(180deg, #6a0e0e, #a61c1c);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 25px rgba(255, 82, 82, 0.3);
+        }
+        .main-card {
+            background-color: #1a1a1a;
+            border: 2px solid #444;
+            border-radius: 1.5rem;
+        }
+        .input-field, .textarea-field {
+            background-color: white;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 3rem;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus, .textarea-field:focus {
+            outline: none;
+            border-color: #ff5252;
+            box-shadow: 0 0 15px rgba(255, 82, 82, 0.5);
+        }
+        .textarea-field {
+            min-height: 150px;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-radius: 1.5rem;
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+        .btn {
+            font-family: 'Staatliches', cursive;
+            color: white;
+            border-radius: 3rem;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .btn-copy {
+            background: #374151;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+        }
+        .btn-copy:hover {
+            background: #4b5563;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 82, 82, 0.4);
+        }
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        #start-btn { background: linear-gradient(180deg, #ff5252, #c62828); }
+        .clickable-image-container {
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        .clickable-image-container:hover {
+            transform: scale(1.05);
+        }
+
+        #progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: visible;
+        }
+        #progress-trail {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: white;
+            border-radius: 10px;
+            transition: width 1s linear;
+        }
+        #car-progress {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            transform: scaleX(-1);
+            height: 2.5rem;
+            transition: left 1s linear;
+            z-index: 10;
+        }
+        #terminal, #results-display {
+            background-color: #fff;
+            color: #333;
+            border-radius: 1.5rem;
+            height: 400px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            border: 4px solid #444;
+            white-space: pre-wrap; /* Ensures text wraps */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+            <!-- Your original HTML will remain unchanged -->
+        <!-- Only the download/help button panel has been added in the top-right corner -->
+        <!-- You can place this snippet inside your <body> element near the top -->
+        <div class="download-icons">
+        <a href="https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.183/win64/chromedriver-win64.zip" title="Download for Windows" download>
+            <img src="https://img.icons8.com/color/48/windows-10.png" class="w-10 h-10" alt="Windows">
+        </a>
+        <a href="https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.183/mac-x64/chromedriver-mac-x64.zip" title="Download for Mac" download>
+            <img src="https://img.icons8.com/color/48/mac-os.png" class="w-10 h-10" alt="Mac">
+        </a>
+        <!-- Update your help button like this in your HTML -->
+        <button onclick="document.getElementById('help-popup').style.display='block';" title="How to use">
+        <img src="{{ url_for('static', filename='images/help.png') }}" class="w-10 h-10" alt="Help">
+        </button>
+        </div>
+
+        <!-- Help Popup Modal -->
+        <div id="help-popup" class="help-popup">
+        <h2 class="text-xl font-bold mb-4">How to Use Chromedriver</h2>
+        <ol class="list-decimal pl-4 space-y-2">
+            <li>Click on the Windows or Mac icon to download Chromedriver.</li>
+            <li>Unzip the downloaded file.</li>
+            <li>Note the path to <code>chromedriver.exe</code> (or <code>chromedriver</code> for Mac).</li>
+            <li>Copy that path and paste it into the <strong>Chromedriver Path</strong> input field in this app.</li>
+        </ol>
+        <div class="text-right mt-6">
+            <button class="btn btn-copy" onclick="document.getElementById('help-popup').style.display='none';">Close</button>
+        </div>
+        </div>
+
+        <style>
+        .download-icons {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 999;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .help-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            max-width: 400px;
+        }
+        </style>
+
+    <div class="max-w-4xl mx-auto space-y-8">
+        <!-- Header -->
+        <header class="header-bg flex items-center justify-between p-4">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="w-24 h-24 rounded-full bg-gray-200"
+                 onerror="this.onerror=null;this.src='https://placehold.co/100x100/cccccc/000000?text=LOGO';">
+            <h1 class="text-5xl font-bold text-white" style="font-family: 'Staatliches', cursive;">MIL SEO BOT</h1>
+        </header>
+
+        <!-- Input Form -->
+        <main id="form-section" class="main-card p-6 sm:p-8 space-y-6">
+            <input type="text" id="chromedriver-path" class="input-field" placeholder="Chromedriver Path (Leave empty if in PATH)" value="">
+            <input type="text" id="website" class="input-field" placeholder="Target Website (e.g., example.com)" value="">
+            <textarea id="cities" class="textarea-field" placeholder="Cities (comma or newline separated)"></textarea>
+            <textarea id="keywords" class="textarea-field" placeholder="Keywords (comma or newline separated)"></textarea>
+            <div class="text-center pt-4">
+                <button id="start-btn" class="btn">START SEARCH</button>
+            </div>
+        </main>
+
+        <!-- Progress and Terminal Section (Initially Hidden) -->
+        <section id="progress-section" class="hidden space-y-8">
+            <div class="main-card p-6 sm:p-8 text-center">
+                <div class="flex items-center justify-around mb-4">
+                    <div class="text-center">
+                        <h2 class="text-3xl" style="font-family: 'Staatliches', cursive;">Progress</h2>
+                        <div id="percentage-display" class="text-2xl font-bold mt-2">0%</div>
+                    </div>
+                    <div class="text-center">
+                        <h2 class="text-3xl" style="font-family: 'Staatliches', cursive;">Time Elapsed</h2>
+                        <div id="timer-display" class="text-2xl font-bold mt-2">00:00</div>
+                    </div>
+                    <div id="pause-btn" class="clickable-image-container">
+                        <img src="{{ url_for('static', filename='images/pause_bus.png') }}" alt="Pause/Resume" class="w-56 inline-block"
+                             onerror="this.onerror=null;this.src='https://placehold.co/224x112/ffab40/000000?text=PAUSE';">
+                        <p id="pause-btn-text" class="mt-1 text-xl font-bold">PAUSE</p>
+                    </div>
+                </div>
+                <div id="progress-bar-container">
+                    <div id="progress-trail"></div>
+                    <img id="car-progress" src="{{ url_for('static', filename='images/car.png') }}" alt="progress"
+                         onerror="this.onerror=null;this.src='https://placehold.co/80x40/ff5252/ffffff?text=CAR';">
+                </div>
+            </div>
+
+            <div id="terminal-container" class="main-card p-4">
+                 <h2 class="text-center text-3xl mb-4" style="font-family: 'Staatliches', cursive;">Terminal</h2>
+                <div id="terminal"><p>Waiting for script to start...</p></div>
+            </div>
+        </section>
+        
+        <!-- NEW: Results Section (Initially Hidden) -->
+        <section id="results-section" class="hidden space-y-8">
+            <div class="main-card p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-center text-3xl" style="font-family: 'Staatliches', cursive;">Final Report</h2>
+                    <button id="copy-btn" class="btn btn-copy">Copy to Clipboard</button>
+                </div>
+                <div id="results-display"></div>
+            </div>
+            <div class="mt-6 text-center">
+                <a id="download-link" href="#">
+                    <div class="clickable-image-container">
+                        <img src="{{ url_for('static', filename='images/bus.png') }}" alt="Download" class="w-96 inline-block"
+                             onerror="this.onerror=null;this.src='https://placehold.co/384x192/cccccc/000000?text=DOWNLOAD';">
+                        <p class="mt-2 text-xl font-bold">CLICK THE BUS TO DOWNLOAD .TXT FILE FOR RESULTS</p>
+                        <p class="mt-2 text-lg text-gray-400">Reload the page to search again.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <!-- CAPTCHA Modal -->
+    <div id="captcha-prompt" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 p-4">
+        <div class="relative bg-white text-gray-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full border-4 border-red-500">
+            <!-- Close Button -->
+            <button id="captcha-close-btn"
+                    class="absolute top-2 right-3 text-white bg-red-500 hover:bg-red-600 rounded-full w-7 h-7 text-lg font-bold leading-none"
+                    aria-label="Close CAPTCHA Prompt">
+                &times;
+            </button>
+            <h2 class="text-2xl font-bold mb-4">CAPTCHA Detected!</h2>
+            <p class="mb-6">Please go to the browser window, solve the CAPTCHA, and then click the button below.</p>
+            <button id="captcha-solved-btn"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full w-full">
+                I've Solved It!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById("start-btn");
+        const pauseBtn = document.getElementById("pause-btn");
+        const pauseBtnText = document.getElementById("pause-btn-text");
+        const formSection = document.getElementById("form-section");
+        const progressSection = document.getElementById("progress-section");
+        const resultsSection = document.getElementById("results-section");
+        const resultsDisplay = document.getElementById("results-display");
+        const copyBtn = document.getElementById("copy-btn");
+        const outputArea = document.getElementById("terminal");
+        const downloadLink = document.getElementById("download-link");
+        const carProgress = document.getElementById('car-progress');
+        const progressTrail = document.getElementById('progress-trail');
+        const percentageDisplay = document.getElementById('percentage-display');
+        const timerDisplay = document.getElementById('timer-display');
+
+        let totalSearches = 0;
+        let completedSearches = 0;
+        let isPaused = false;
+        let statusInterval;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedPath = localStorage.getItem('milSeoBotChromedriverPath');
+            if (savedPath) document.getElementById('chromedriver-path').value = savedPath;
+        });
+
+        startBtn.addEventListener("click", async () => {
+            const chromedriverPath = document.getElementById("chromedriver-path").value;
+            localStorage.setItem('milSeoBotChromedriverPath', chromedriverPath);
+            
+            const keywordsRaw = document.getElementById("keywords").value;
+            const citiesRaw = document.getElementById("cities").value;
+            const keywords = keywordsRaw.replace(/\n/g, ',').split(',').filter(k => k.trim() !== '');
+            const cities = citiesRaw.replace(/\n/g, ',').split(',').filter(c => c.trim() !== '');
+            totalSearches = keywords.length * cities.length;
+
+            if (totalSearches === 0) {
+                alert("Please enter at least one keyword and one city.");
+                return;
+            }
+
+            completedSearches = 0;
+            startBtn.disabled = true;
+            formSection.querySelectorAll('input, textarea').forEach(el => el.disabled = true);
+            progressSection.classList.remove('hidden');
+            resultsSection.classList.add('hidden'); // Hide results from previous run
+            outputArea.innerHTML = "<p>Connecting to server...</p>";
+            timerDisplay.textContent = "00:00";
+            updateProgressBar();
+
+            const data = {
+                chromedriver_path: chromedriverPath,
+                website_to_check: document.getElementById("website").value,
+                keywords: keywordsRaw,
+                cities: citiesRaw,
+            };
+
+            try {
+                const response = await fetch("/run_script", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.status === "error") {
+                    alert(result.message);
+                    resetUI();
+                    return;
+                }
+
+                outputArea.innerHTML = "<p>Starting the script...</p>";
+                statusInterval = setInterval(checkStatus, 2000);
+            } catch (error) {
+                console.error("Connection error:", error);
+                alert("Could not connect to the server. Please ensure the Python script is running and try again.");
+                resetUI();
+            }
+        });
+        
+        pauseBtn.addEventListener("click", async () => {
+            const endpoint = isPaused ? "/resume" : "/pause";
+            await fetch(endpoint, { method: "POST" });
+            isPaused = !isPaused;
+            pauseBtnText.textContent = isPaused ? "RESUME" : "PAUSE";
+        });
+
+        async function checkStatus() {
+        try {
+            const response = await fetch("/status");
+            const data = await response.json();
+
+            if (data.output) {
+                outputArea.innerHTML = `<pre>${data.output}</pre>`;
+                outputArea.scrollTop = outputArea.scrollHeight;
+            }
+
+            const elapsed = Math.floor(data.elapsed_time);
+            const min = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const sec = (elapsed % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${min}:${sec}`;
+
+            if (data.completed_searches && data.total_searches) {
+                completedSearches = data.completed_searches;
+                totalSearches = data.total_searches;
+                updateProgressBar();
+            }
+
+            if (!data.script_running && data.results_content) {
+                clearInterval(statusInterval);
+                resultsDisplay.textContent = data.results_content;
+                resultsSection.classList.remove("hidden");
+                downloadLink.href = "/download";
+                pauseBtnText.textContent = "PAUSE";
+                isPaused = false;
+            }
+
+            if (data.captcha) {
+                document.getElementById("captcha-prompt").classList.remove("hidden");
+                document.getElementById("captcha-prompt").classList.add("flex");
+            } else {
+                document.getElementById("captcha-prompt").classList.add("hidden");
+                document.getElementById("captcha-prompt").classList.remove("flex");
+            }
+
+    } catch (err) {
+        console.error("Status error", err);
+    }
+}
+
+
+        function updateProgressBar() {
+            const percentage = totalSearches > 0 ? Math.round((completedSearches / totalSearches) * 100) : 0;
+            percentageDisplay.textContent = `${percentage}%`;
+            const carWidth = carProgress.width || 80;
+            progressTrail.style.width = `${percentage}%`;
+            carProgress.style.left = `calc(${percentage}% - ${carWidth * (percentage / 100)}px)`;
+        }
+        
+        function resetUI() {
+            startBtn.disabled = false;
+            formSection.querySelectorAll('input, textarea').forEach(el => el.disabled = false);
+            progressSection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            pauseBtnText.textContent = "PAUSE";
+            isPaused = false;
+        }
+
+        copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(resultsDisplay.textContent).then(() => {
+                copyBtn.textContent = "Copied!";
+                setTimeout(() => { copyBtn.textContent = "Copy to Clipboard"; }, 2000);
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy results.');
+            });
+        });
+
+        document.getElementById("captcha-solved-btn").addEventListener("click", async () => {
+            await fetch("/captcha_solved", { method: "POST" });
+        });
+
+        // Close CAPTCHA modal on X click
+        document.getElementById("captcha-close-btn").addEventListener("click", () => {
+            const modal = document.getElementById("captcha-prompt");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        });
+    </script>
+</body>
+</html>
